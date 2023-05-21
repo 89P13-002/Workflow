@@ -29,25 +29,10 @@ jobs:
       run: |
         echo "Thank you for reporting the issue. We are looking into it!"
         echo "Stay tuned for updates."
-
-        # You can customize the message as needed
-
-        # GitHub CLI command to comment on the issue
-        gh issue comment ${{ github.event.issue.number }} -b "Thank you for reporting the issue. We are looking into it! Stay tuned for updates."
-
-        # Alternatively, you can use the GitHub REST API or other methods to comment on the issue
-
     - name: Close issue
       if: github.event.action == 'closed'
       run: |
         echo "Issue has been resolved. Thank you for your contribution!"
-
-        # You can customize the message as needed
-
-        # GitHub CLI command to close the issue
-        gh issue close ${{ github.event.issue.number }}
-
-        # Alternatively, you can use the GitHub REST API or other methods to close the issue
 
     - name: Send Slack notification
       if: always()
