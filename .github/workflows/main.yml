@@ -1,0 +1,59 @@
+name: Issue Workflow
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - closed
+
+jobs:
+  process_issue:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run issue processing script
+      run: npm run process-issue -- ${{ github.event.issue.number }}
+
+    - name: Comment on issue
+      run: |
+        echo "Thank you for reporting the issue. We are looking into it!"
+        echo "Stay tuned for updates."
+
+        # You can customize the message as needed
+
+        # GitHub CLI command to comment on the issue
+        gh issue comment ${{ github.event.issue.number }} -b "Thank you for reporting the issue. We are looking into it! Stay tuned for updates."
+
+        # Alternatively, you can use the GitHub REST API or other methods to comment on the issue
+
+    - name: Close issue
+      if: github.event.action == 'closed'
+      run: |
+        echo "Issue has been resolved. Thank you for your contribution!"
+
+        # You can customize the message as needed
+
+        # GitHub CLI command to close the issue
+        gh issue close ${{ github.event.issue.number }}
+
+        # Alternatively, you can use the GitHub REST API or other methods to close the issue
+
+    - name: Send Slack notification
+      if: always()
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      run: |
+        MESSAGE="An issue has been ${{{ github.event.action }}}: ${{{ github.event.issue.title }}}"
+
+        curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"$MESSAGE\"}" $SLACK_WEBHOOK_URL
